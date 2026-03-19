@@ -1,0 +1,40 @@
+---
+layout: base.njk
+title: Home
+description: Complex tech. Simple explanations. Tutorials on AI, DevOps, and modern software engineering.
+---
+
+<div class="hero">
+  <h1>TechAI Explained</h1>
+  <p>Complex tech. Simple explanations. Deep-dive tutorials on AI agents, Kubernetes, reactive programming, and modern developer tools.</p>
+</div>
+
+<div class="section-header">
+  <h2>📚 Latest Tutorials</h2>
+</div>
+
+<div class="card-grid">
+  {%- for article in collections.articles -%}
+  <div class="card">
+    <span class="tag">{{ article.data.tags[0] if article.data.tags else 'Tutorial' }}</span>
+    <h3><a href="{{ article.url | url }}">{{ article.data.title }}</a></h3>
+    <p>{{ article.data.description }}</p>
+    <div class="meta">{{ article.data.date | readableDate }} · {{ article.data.readTime or '8 min read' }}</div>
+  </div>
+  {%- endfor -%}
+</div>
+
+<div class="section-header">
+  <h2>🎥 Video Script Outlines</h2>
+</div>
+
+<div class="card-grid">
+  {%- for script in collections.videoScripts -%}
+  <div class="card">
+    <span class="tag">Video Script</span>
+    <h3><a href="{{ script.url | url }}">{{ script.data.title }}</a></h3>
+    <p>{{ script.data.description }}</p>
+    <div class="meta">{{ script.data.date | readableDate }}</div>
+  </div>
+  {%- endfor -%}
+</div>

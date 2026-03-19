@@ -1,0 +1,25 @@
+{
+  "name": "techai-explained",
+  "version": "1.0.0",
+  "description": "TechAI Explained - Tech education tutorials and guides",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx @11ty/eleventy --pathprefix=/techai-explained/",
+    "dev": "npx @11ty/eleventy --serve --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://tamirdresher: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@github.com/tamirdresher/techai-explained.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tamirdresher/techai-explained/issues"
+  },
+  "homepage": "https://github.com/tamirdresher/techai-explained#readme",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0"
+  }
+}

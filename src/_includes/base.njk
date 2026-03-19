@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — {{ site.title }}</title>
+  <meta name="description" content="{{ description or site.description }}">
+  <link rel="stylesheet" href="{{ '/css/style.css' | url }}">
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a href="{{ '/' | url }}" class="logo">⚡ {{ site.title }}</a>
+      <div class="nav-links">
+        <a href="{{ '/articles/' | url }}">Tutorials</a>
+        <a href="{{ '/video-scripts/' | url }}">Video Scripts</a>
+        <a href="https://github.com/tamirdresher/techai-explained">GitHub</a>
+      </div>
+    </nav>
+  </header>
+  <main>
+    {{ content | safe }}
+  </main>
+  <footer>
+    <p>&copy; {{ site.title }} Team — Complex tech, simple explanations.</p>
+  </footer>
+</body>
+</html>

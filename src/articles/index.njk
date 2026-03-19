@@ -1,0 +1,22 @@
+---
+layout: base.njk
+title: Tutorials
+description: In-depth technical tutorials on AI, DevOps, and software engineering.
+permalink: /articles/
+---
+
+<div class="section-header">
+  <h1>📚 All Tutorials</h1>
+  <p class="subtitle">In-depth technical guides with code examples and architecture patterns.</p>
+</div>
+
+<div class="card-grid">
+  {%- for article in collections.articles -%}
+  <div class="card">
+    <span class="tag">{{ article.data.tags[0] if article.data.tags else 'Tutorial' }}</span>
+    <h3><a href="{{ article.url | url }}">{{ article.data.title }}</a></h3>
+    <p>{{ article.data.description }}</p>
+    <div class="meta">{{ article.data.date | readableDate }} · {{ article.data.readTime or '8 min read' }}</div>
+  </div>
+  {%- endfor -%}
+</div>

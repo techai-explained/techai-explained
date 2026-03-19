@@ -1,0 +1,22 @@
+---
+layout: base.njk
+title: Video Scripts
+description: Outlines and scripts for upcoming TechAI Explained videos.
+permalink: /video-scripts/
+---
+
+<div class="section-header">
+  <h1>🎥 Video Script Outlines</h1>
+  <p class="subtitle">Full outlines for upcoming video content. Each includes timing, talking points, and visual direction.</p>
+</div>
+
+<div class="card-grid">
+  {%- for script in collections.videoScripts -%}
+  <div class="card">
+    <span class="tag">Video Script</span>
+    <h3><a href="{{ script.url | url }}">{{ script.data.title }}</a></h3>
+    <p>{{ script.data.description }}</p>
+    <div class="meta">{{ script.data.date | readableDate }}</div>
+  </div>
+  {%- endfor -%}
+</div>

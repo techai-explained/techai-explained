@@ -1,0 +1,20 @@
+---
+layout: base.njk
+---
+<article class="article-content">
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="tag">{{ tags[0] if tags else 'Tutorial' }}</span>
+      <time>{{ date | readableDate }}</time>
+      <span class="read-time">{{ readTime or '8 min read' }}</span>
+    </div>
+    <h1>{{ title }}</h1>
+    <p class="subtitle">{{ description }}</p>
+  </header>
+  <div class="article-body">
+    {{ content | safe }}
+  </div>
+  <footer class="article-footer">
+    <p>Written by the <strong>{{ site.author }}</strong>. Found this helpful? Share it with your team.</p>
+  </footer>
+</article>
