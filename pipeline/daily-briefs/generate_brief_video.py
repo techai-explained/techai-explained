@@ -267,12 +267,12 @@ def compose_video_ffmpeg(slides, audio_files, output_path, per_slide_secs=None):
             print(f"ffmpeg clip {idx} error: {clip_result.stderr[:200]}", file=sys.stderr)
         concat_entries.append(clip_path)
 
-    # Write concat file (use forward slashes for ffmpeg compatibility on Windows)
+    # Write concat file (use just filenames since clips are in same directory)
     concat_file = str(tmp_dir / "concat.txt")
     with open(concat_file, "w") as f:
         for entry in concat_entries:
-            safe_path = entry.replace("\\", "/")
-            f.write(f"file '{safe_path}'\n")
+            filename = os.path.basename(entry)
+            f.write(f"file '{filename}'\n")
 
     # Concatenate all clips
     concat_result = subprocess.run(

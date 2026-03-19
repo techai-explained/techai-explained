@@ -25,8 +25,11 @@ function Generate-DailyBriefs {
 
         $briefJson = "$pipelineDir\output\$Date\$topic-brief.json"
         if (Test-Path $briefJson) {
-            Write-Host "  Generating video for: $topic" -ForegroundColor Green
-            python "$pipelineDir\generate_brief_video.py" $briefJson
+            Write-Host "  Generating English video for: $topic" -ForegroundColor Green
+            python "$pipelineDir\generate_brief_video.py" $briefJson --language en
+
+            Write-Host "  Generating Hebrew video for: $topic" -ForegroundColor Blue
+            python "$pipelineDir\generate_hebrew_brief.py" $briefJson --language he
         }
     }
 
@@ -37,12 +40,13 @@ function Generate-DailyBriefs {
             python "$pipelineDir\fetch_news.py" $topic $Date
             $briefJson = "$pipelineDir\output\$Date\$topic-brief.json"
             if (Test-Path $briefJson) {
-                python "$pipelineDir\generate_brief_video.py" $briefJson
+                python "$pipelineDir\generate_brief_video.py" $briefJson --language en
+                python "$pipelineDir\generate_hebrew_brief.py" $briefJson --language he
             }
         }
     }
 
-    Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - All briefs generated!" -ForegroundColor Green
+    Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - All briefs generated (English + Hebrew)!" -ForegroundColor Green
 }
 
 function Start-Scheduler {
@@ -50,6 +54,7 @@ function Start-Scheduler {
     Write-Host "Generating briefs every $IntervalHours hours at $RunTime" -ForegroundColor Yellow
     Write-Host "Daily topics: $($dailyTopics -join ', ')"
     Write-Host "Weekly topics: $($weeklyTopics -join ', ') (Sundays only)"
+    Write-Host "Languages: English + Hebrew (RTL)"
     Write-Host ""
 
     while ($true) {

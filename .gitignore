@@ -3,3 +3,6 @@ _site/
 .DS_Store
 *.log
 .env
+pipeline/daily-briefs/output/
+__pycache__/
+*.pyc
