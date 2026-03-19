@@ -16,6 +16,9 @@ A tech education platform delivering in-depth tutorials, visual guides, and vide
 | [Building Your First Copilot Extension in 30 Minutes](https://tamirdresher.github.io/techai-explained/articles/building-copilot-extension/) | Developer Tools | 10 min |
 | [Kubernetes Autoscaling: A Visual Guide](https://tamirdresher.github.io/techai-explained/articles/kubernetes-autoscaling-visual-guide/) | DevOps | 13 min |
 | [Reactive Programming in 2026: What Changed](https://tamirdresher.github.io/techai-explained/articles/reactive-programming-2026/) | Programming | 11 min |
+| [Aspire for .NET Developers: The Missing Dashboard](https://tamirdresher.github.io/techai-explained/articles/aspire-dotnet-missing-dashboard/) | .NET | 12 min |
+| [WebSockets vs SSE vs gRPC Streaming in 2026](https://tamirdresher.github.io/techai-explained/articles/websockets-vs-sse-vs-grpc/) | Architecture | 11 min |
+| [From Monolith to Microservices: A Practical Migration Guide](https://tamirdresher.github.io/techai-explained/articles/monolith-to-microservices-guide/) | Architecture | 14 min |
 
 ## 🎥 Video Script Outlines
 
@@ -24,6 +27,8 @@ A tech education platform delivering in-depth tutorials, visual guides, and vide
 | AI Agents Explained in 10 Minutes | 10 min |
 | Why Kubernetes Won (And What's Next) | 12 min |
 | The Developer Productivity Stack for 2026 | 11 min |
+| Docker vs Podman: The Real Differences | 9 min |
+| How AI Changed Code Review Forever | 10 min |
 
 ## 🛠️ Tech Stack
 
