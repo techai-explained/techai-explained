@@ -14,6 +14,18 @@ layout: base.njk
   <div class="article-body">
     {{ content | safe }}
   </div>
+  <div class="support-cta" style="margin:2rem 0;padding:1.5rem 2rem;background:linear-gradient(135deg,#0d1117,#1a1a2e);border:2px solid #58a6ff;border-radius:12px;text-align:center;">
+    <h3 style="color:#58a6ff;margin:0 0 0.5rem;">💝 Support TechAI Explained</h3>
+    <p style="color:#c9d1d9;margin:0 0 1rem;">Free tutorials, open source, community-driven. Help us keep creating.</p>
+    <p style="margin:0;">
+      <a href="{{ '/sponsor/' | url }}" style="display:inline-block;padding:10px 24px;background:#238636;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;margin:0 8px;">
+        ☕ Become a Sponsor
+      </a>
+      <a href="https://github.com/sponsors/tamirdresher" style="display:inline-block;padding:10px 24px;background:#21262d;color:#c9d1d9;text-decoration:none;border-radius:8px;font-weight:bold;border:1px solid #30363d;margin:0 8px;">
+        💝 GitHub Sponsors
+      </a>
+    </p>
+  </div>
   <footer class="article-footer">
     <p>Written by the <strong>{{ site.author }}</strong>. Found this helpful? Share it with your team.</p>
   </footer>

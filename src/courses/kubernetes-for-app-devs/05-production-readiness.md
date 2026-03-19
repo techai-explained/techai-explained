@@ -429,3 +429,12 @@ spec:
 ← [Lesson 4: Networking](/courses/kubernetes-for-app-devs/04-networking-ingress/) | [Back to Course Index](/courses/kubernetes-for-app-devs/)
 
 *Part of the Kubernetes for Application Developers course by the TechAI Explained Team.*
+
+---
+
+<div style="margin:2rem 0;padding:1.5rem 2rem;background:linear-gradient(135deg,#0d1117,#1a1a2e);border:2px solid #58a6ff;border-radius:12px;text-align:center;">
+<h3 style="color:#58a6ff;margin:0 0 0.5rem;">🔒 Premium Content Coming Soon</h3>
+<p style="color:#c9d1d9;margin:0 0 0.5rem;">The <strong>full extended version</strong> of this lesson includes advanced production hardening labs, auto-scaling configurations, real-world incident response playbooks, and a complete production readiness checklist tool.</p>
+<p style="color:#c9d1d9;margin:0 0 1rem;">Available soon as part of the <strong>Kubernetes for App Devs — Extended Edition</strong>.</p>
+<p style="margin:0;"><a href="/sponsor/">💝 Become a sponsor</a> to get early access.</p>
+</div>
