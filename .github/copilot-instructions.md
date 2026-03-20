@@ -23,3 +23,30 @@ This is the TechAI Content Empire — an automated pipeline for generating daily
 - **pipeline/bootstrap.ps1** — runs on every boot; auto-detects new machines and runs full setup
 - **STATUS.md** — current project state, priorities, and context
 - **SESSION-LOG-2026-03-19-20.md** — Full session log from the March 19-20 launch session
+
+
+## GitHub Organization
+
+This repo is forked into **github.com/techai-explained/techai-explained** — the brand's independent org.
+
+**Remotes:**
+- `origin` → tamirdresher/techai-explained (personal, legacy)
+- `org` → techai-explained/techai-explained (org, primary going forward)
+
+**Push to BOTH remotes** when making changes:
+`git push origin main && git push org main`
+
+**GitHub Actions Secrets (available on org repo):**
+- `BRAND_EMAIL` — Brand contact email
+- `BRAND_NAME` — Display name
+- `GUMROAD_STORE_URL` — Gumroad storefront
+- `GUMROAD_AI_COURSE_ID` — AI course product ID
+- `GUMROAD_K8S_COURSE_ID` — K8s course product ID
+- `EDGE_TTS_VOICE_EN` — English TTS voice
+- `EDGE_TTS_VOICE_HE` — Hebrew TTS voice
+- `ADSENSE_PUBLISHER_ID` — AdSense publisher
+- `GUMROAD_ACCESS_TOKEN` — Gumroad API token
+
+**Pages URL:** techai-explained.github.io/techai-explained
+
+**⚠️ NEVER reference 'tamirdresher' or 'Tamir Dresher' in any public-facing content.**
