@@ -10,7 +10,7 @@ audio per section, then composites everything into a 1080p video with
 fade transitions.
 """
 
-import argparse, asyncio, os, re, sys, tempfile, shutil
+import argparse, os, re, sys, tempfile, shutil, subprocess
 
 # Add pipeline dir to path so config/templates import cleanly
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -147,16 +147,29 @@ def render_slide(slide: dict) -> "Image.Image":
 
 # ── TTS Generation ──────────────────────────────────────────────
 
-async def generate_tts(text: str, output_path: str):
-    """Generate speech audio using edge-tts."""
-    import edge_tts
-    communicate = edge_tts.Communicate(
-        text,
-        voice=VOICE_NAME,
-        rate=VOICE_RATE,
-        pitch=VOICE_PITCH,
-    )
-    await communicate.save(output_path)
+def generate_tts_sync(text: str, output_path: str):
+    """Generate speech audio using edge-tts CLI."""
+    import subprocess, tempfile
+    # Write text to temp file to avoid shell escaping issues
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as tf:
+        tf.write(text)
+        txt_path = tf.name
+    try:
+        cmd = [
+            sys.executable, "-m", "edge_tts",
+            "--voice", VOICE_NAME,
+            "--rate", VOICE_RATE,
+            "--pitch", VOICE_PITCH,
+            "--file", txt_path,
+            "--write-media", output_path,
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if result.returncode != 0:
+            print(f"  TTS warning: {result.stderr[:200]}", flush=True)
+    except Exception as e:
+        print(f"  TTS error: {e}", flush=True)
+    finally:
+        os.unlink(txt_path)
 
 
 # ── Video Assembly ──────────────────────────────────────────────
@@ -218,29 +231,30 @@ def assemble_video(slide_data: list[dict], output_path: str, video_title: str):
 
 # ── Main Pipeline ───────────────────────────────────────────────
 
-async def run_pipeline(script_path: str, output_path: str):
-    print(f"📄 Reading script: {script_path}")
+def run_pipeline(script_path: str, output_path: str):
+    p = lambda *a, **k: print(*a, **k, flush=True)
+    p(f"📄 Reading script: {script_path}")
     with open(script_path, "r", encoding="utf-8") as f:
         text = f.read()
 
     meta = parse_frontmatter(text)
     video_title = meta.get("title", os.path.splitext(os.path.basename(script_path))[0])
-    print(f"🎬 Video: {video_title}")
+    p(f"🎬 Video: {video_title}")
 
     slides = parse_slides(text)
-    print(f"📊 Parsed {len(slides)} slides")
+    p(f"📊 Parsed {len(slides)} slides")
 
     if not slides:
-        print("❌ No slides found. Check script format.")
+        p("❌ No slides found. Check script format.")
         sys.exit(1)
 
     # Create temp working dir
     work_dir = tempfile.mkdtemp(prefix="techai_")
-    print(f"🗂  Working directory: {work_dir}")
+    p(f"🗂  Working directory: {work_dir}")
 
     slide_data = []
     for i, slide in enumerate(slides):
-        print(f"  [{i+1}/{len(slides)}] Rendering slide: {slide['type']} — {slide['title'][:50]}")
+        p(f"  [{i+1}/{len(slides)}] Rendering slide: {slide['type']} — {slide['title'][:50]}")
 
         # Render slide image
         img = render_slide(slide)
@@ -252,17 +266,17 @@ async def run_pipeline(script_path: str, output_path: str):
         if not narration.strip():
             narration = slide["title"]
         audio_path = os.path.join(work_dir, f"audio_{i:03d}.mp3")
-        print(f"         🔊 Generating TTS ({len(narration)} chars)...")
-        await generate_tts(narration, audio_path)
+        p(f"         🔊 Generating TTS ({len(narration)} chars)...")
+        generate_tts_sync(narration, audio_path)
 
         slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
-    print(f"\n🎥 Assembling video...")
+    p(f"\n🎥 Assembling video...")
     assemble_video(slide_data, output_path, video_title)
 
     # Clean up temp files
     shutil.rmtree(work_dir, ignore_errors=True)
-    print("🧹 Cleaned up temp files")
+    p("🧹 Cleaned up temp files")
 
 
 def main():
@@ -279,7 +293,7 @@ def main():
         base = os.path.splitext(os.path.basename(args.script))[0]
         args.output = os.path.join("pipeline", "output", f"{base}.mp4")
 
-    asyncio.run(run_pipeline(args.script, args.output))
+    run_pipeline(args.script, args.output)
 
 
 if __name__ == "__main__":

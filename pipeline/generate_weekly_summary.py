@@ -8,7 +8,7 @@ Usage:
 Takes a JSON file with the week's top stories and generates a 5-8 minute video.
 """
 
-import argparse, asyncio, json, os, sys, tempfile, shutil
+import argparse, json, os, sys, tempfile, shutil, subprocess
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,10 +23,17 @@ from slide_templates import (
 )
 
 
-async def generate_tts(text: str, output_path: str):
-    import edge_tts
-    communicate = edge_tts.Communicate(text, voice=VOICE_NAME, rate=VOICE_RATE, pitch=VOICE_PITCH)
-    await communicate.save(output_path)
+def generate_tts_sync(text, output_path):
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as tf:
+        tf.write(text)
+        txt_path = tf.name
+    try:
+        cmd = [sys.executable, "-m", "edge_tts", "--voice", VOICE_NAME,
+               "--rate", VOICE_RATE, "--pitch", VOICE_PITCH,
+               "--file", txt_path, "--write-media", output_path]
+        subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    finally:
+        os.unlink(txt_path)
 
 
 def assemble_video(slide_data: list[dict], output_path: str, video_title: str):
@@ -52,10 +59,10 @@ def assemble_video(slide_data: list[dict], output_path: str, video_title: str):
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     final.write_videofile(output_path, fps=FPS, codec="libx264", audio_codec="aac",
                           bitrate=VIDEO_BITRATE, audio_bitrate=AUDIO_BITRATE, logger="bar")
-    print(f"\n✅ Weekly summary saved to: {output_path}")
+    print(f"\n✅ Weekly summary saved to: {output_path}", flush=True)
 
 
-async def run_weekly(json_path: str, output_path: str):
+def run_weekly(json_path: str, output_path: str):
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -64,7 +71,7 @@ async def run_weekly(json_path: str, output_path: str):
     deep_dive = data.get("deep_dive", None)
     video_title = f"TechAI Weekly — Week of {week_of}"
 
-    print(f"🎬 Generating: {video_title}")
+    print(f"🎬 Generating: {video_title}", flush=True)
     work_dir = tempfile.mkdtemp(prefix="techai_weekly_")
     slide_data = []
 
@@ -75,7 +82,7 @@ async def run_weekly(json_path: str, output_path: str):
     img_path = os.path.join(work_dir, "slide_open.png")
     img.save(img_path)
     audio_path = os.path.join(work_dir, "audio_open.mp3")
-    await generate_tts(opening, audio_path)
+    generate_tts_sync(opening, audio_path)
     slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     # Top stories
@@ -88,7 +95,7 @@ async def run_weekly(json_path: str, output_path: str):
         img_path = os.path.join(work_dir, f"slide_story_{i}.png")
         img.save(img_path)
         audio_path = os.path.join(work_dir, f"audio_story_{i}.mp3")
-        await generate_tts(narration, audio_path)
+        generate_tts_sync(narration, audio_path)
         slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     # Deep dive
@@ -104,7 +111,7 @@ async def run_weekly(json_path: str, output_path: str):
             img_path = os.path.join(work_dir, f"slide_dd_{j}.png")
             img.save(img_path)
             audio_path = os.path.join(work_dir, f"audio_dd_{j}.mp3")
-            await generate_tts(sec_narration, audio_path)
+            generate_tts_sync(sec_narration, audio_path)
             slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     # Closing
@@ -113,7 +120,7 @@ async def run_weekly(json_path: str, output_path: str):
     img_path = os.path.join(work_dir, "slide_close.png")
     img.save(img_path)
     audio_path = os.path.join(work_dir, "audio_close.mp3")
-    await generate_tts(closing, audio_path)
+    generate_tts_sync(closing, audio_path)
     slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     assemble_video(slide_data, output_path, video_title)
@@ -129,7 +136,7 @@ def main():
     if args.output is None:
         args.output = os.path.join("pipeline", "output", "weekly-summary.mp4")
 
-    asyncio.run(run_weekly(args.json_file, args.output))
+    run_weekly(args.json_file, args.output)
 
 
 if __name__ == "__main__":

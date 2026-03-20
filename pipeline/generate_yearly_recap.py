@@ -9,7 +9,7 @@ Generates a 15-20 minute year-in-review video with month-by-month highlights,
 top 10 technologies, and predictions for next year.
 """
 
-import argparse, asyncio, json, os, sys, tempfile, shutil
+import argparse, json, os, sys, tempfile, shutil, subprocess
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,10 +24,17 @@ from slide_templates import (
 )
 
 
-async def generate_tts(text: str, output_path: str):
-    import edge_tts
-    communicate = edge_tts.Communicate(text, voice=VOICE_NAME, rate=VOICE_RATE, pitch=VOICE_PITCH)
-    await communicate.save(output_path)
+def generate_tts_sync(text, output_path):
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as tf:
+        tf.write(text)
+        txt_path = tf.name
+    try:
+        cmd = [sys.executable, "-m", "edge_tts", "--voice", VOICE_NAME,
+               "--rate", VOICE_RATE, "--pitch", VOICE_PITCH,
+               "--file", txt_path, "--write-media", output_path]
+        subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    finally:
+        os.unlink(txt_path)
 
 
 def assemble_video(slide_data: list[dict], output_path: str, video_title: str):
@@ -53,10 +60,10 @@ def assemble_video(slide_data: list[dict], output_path: str, video_title: str):
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     final.write_videofile(output_path, fps=FPS, codec="libx264", audio_codec="aac",
                           bitrate=VIDEO_BITRATE, audio_bitrate=AUDIO_BITRATE, logger="bar")
-    print(f"\n✅ Yearly recap saved to: {output_path}")
+    print(f"\n✅ Yearly recap saved to: {output_path}", flush=True)
 
 
-async def run_yearly(json_path: str, output_path: str):
+def run_yearly(json_path: str, output_path: str):
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -66,7 +73,7 @@ async def run_yearly(json_path: str, output_path: str):
     predictions = data.get("predictions", [])
     video_title = f"Tech Year in Review {year}"
 
-    print(f"🎬 Generating: {video_title}")
+    print(f"🎬 Generating: {video_title}", flush=True)
     work_dir = tempfile.mkdtemp(prefix="techai_yearly_")
     slide_data = []
 
@@ -78,7 +85,7 @@ async def run_yearly(json_path: str, output_path: str):
     img_path = os.path.join(work_dir, "slide_open.png")
     img.save(img_path)
     audio_path = os.path.join(work_dir, "audio_open.mp3")
-    await generate_tts(opening, audio_path)
+    generate_tts_sync(opening, audio_path)
     slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     # Month-by-month
@@ -92,7 +99,7 @@ async def run_yearly(json_path: str, output_path: str):
         img_path = os.path.join(work_dir, f"slide_{month_name.lower()}.png")
         img.save(img_path)
         audio_path = os.path.join(work_dir, f"audio_{month_name.lower()}.mp3")
-        await generate_tts(narration, audio_path)
+        generate_tts_sync(narration, audio_path)
         slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     # Top 10 Technologies
@@ -101,7 +108,7 @@ async def run_yearly(json_path: str, output_path: str):
         tp = os.path.join(work_dir, "slide_top10_title.png")
         tech_title.save(tp)
         ap = os.path.join(work_dir, "audio_top10_title.mp3")
-        await generate_tts(f"Now let's count down the top 10 technologies of {year}.", ap)
+        generate_tts_sync(f"Now let's count down the top 10 technologies of {year}.", ap)
         slide_data.append({"image_path": tp, "audio_path": ap})
 
         # Show in groups of 5
@@ -113,7 +120,7 @@ async def run_yearly(json_path: str, output_path: str):
             img_path = os.path.join(work_dir, f"slide_top10_{chunk_start}.png")
             img.save(img_path)
             audio_path = os.path.join(work_dir, f"audio_top10_{chunk_start}.mp3")
-            await generate_tts(narration, audio_path)
+            generate_tts_sync(narration, audio_path)
             slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     # Predictions
@@ -124,7 +131,7 @@ async def run_yearly(json_path: str, output_path: str):
         img_path = os.path.join(work_dir, "slide_predictions.png")
         img.save(img_path)
         audio_path = os.path.join(work_dir, "audio_predictions.mp3")
-        await generate_tts(pred_narration, audio_path)
+        generate_tts_sync(pred_narration, audio_path)
         slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     # Closing
@@ -134,7 +141,7 @@ async def run_yearly(json_path: str, output_path: str):
     img_path = os.path.join(work_dir, "slide_close.png")
     img.save(img_path)
     audio_path = os.path.join(work_dir, "audio_close.mp3")
-    await generate_tts(closing, audio_path)
+    generate_tts_sync(closing, audio_path)
     slide_data.append({"image_path": img_path, "audio_path": audio_path})
 
     assemble_video(slide_data, output_path, video_title)
@@ -150,7 +157,7 @@ def main():
     if args.output is None:
         args.output = os.path.join("pipeline", "output", "yearly-recap.mp4")
 
-    asyncio.run(run_yearly(args.json_file, args.output))
+    run_yearly(args.json_file, args.output)
 
 
 if __name__ == "__main__":
