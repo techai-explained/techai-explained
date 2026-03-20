@@ -9,6 +9,14 @@ Write-Host "=== TechAI Startup Catch-Up ===" -ForegroundColor Cyan
 Write-Host "Date: $today"
 Write-Host ""
 
+# 0. Git pull latest to ensure we have newest scripts and configs
+Write-Host "--- Pulling latest from repo ---" -ForegroundColor Cyan
+Push-Location $repoRoot
+git pull --quiet 2>$null
+Write-Host "  Pulled latest" -ForegroundColor Green
+Pop-Location
+Write-Host ""
+
 # 1. Check and generate missing daily briefs (last 7 days)
 Write-Host "--- Checking daily briefs ---" -ForegroundColor Cyan
 $outputDir = "$repoRoot\pipeline\daily-briefs\output"

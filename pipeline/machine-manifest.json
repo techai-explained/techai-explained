@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "description": "Machine-level setup manifest. Bootstrap reads this on every startup.",
+  "repos": [
+    {
+      "name": "techai-explained",
+      "path": "C:\\Users\\tamirdresher\\source\\repos\\techai-explained",
+      "github": "tamirdresher/techai-explained"
+    },
+    {
+      "name": "content-empire",
+      "path": "C:\\Users\\tamirdresher\\source\\repos\\content-empire",
+      "github": "tamirdresher/content-empire"
+    },
+    {
+      "name": "jellybolt-games",
+      "path": "C:\\Users\\tamirdresher\\source\\repos\\jellybolt-games",
+      "github": "tamirdresher/jellybolt-games"
+    }
+  ],
+  "scheduled_tasks": [
+    {
+      "name": "TechAI-DailyBriefs",
+      "script": "pipeline\\daily-briefs\\scheduler.ps1",
+      "repo": "techai-explained",
+      "trigger": "daily",
+      "time": "06:00",
+      "description": "Generate daily tech brief videos"
+    }
+  ],
+  "startup_scripts": [
+    {
+      "name": "TechAI-StartupCatchUp",
+      "script": "pipeline\\startup-catchup.ps1",
+      "repo": "techai-explained",
+      "description": "Catch up missed daily briefs and launch Ralphs"
+    }
+  ],
+  "ralphs": [
+    {
+      "name": "Ralph-TechAI",
+      "repo": "techai-explained",
+      "prompt": "You are Ralph watching techai-explained. Read STATUS.md first. Check issues, PRs, CI. Generate daily briefs if missing. Act autonomously."
+    },
+    {
+      "name": "Ralph-JellyBolt",
+      "repo": "jellybolt-games",
+      "prompt": "You are Ralph watching jellybolt-games. Read STATUS.md first. Check issues, PRs, game status. Act autonomously."
+    },
+    {
+      "name": "Ralph-ContentEmpire",
+      "repo": "content-empire",
+      "prompt": "You are Ralph watching content-empire. Read STATUS.md first. Check issues, PRs, article status. Act autonomously."
+    }
+  ],
+  "python_deps": ["feedparser", "edge-tts", "Pillow", "moviepy"],
+  "last_updated": "2026-03-20"
+}
