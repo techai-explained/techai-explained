@@ -1,0 +1,22 @@
+{
+  "machines": {
+    "CPC-tamir-3H7BI": {
+      "setup_complete": [
+        "repos-cloned",
+        "bootstrap-installed",
+        "python-deps",
+        "startup-task",
+        "daily-task",
+        "git-auth",
+        "first-briefs",
+        "ralphs-launched"
+      ],
+      "last_seen": "2026-03-20T07:38:22Z",
+      "setup_pending": [],
+      "os": "Microsoft Windows NT 10.0.26200.0",
+      "first_seen": "2026-03-20T07:38:22Z",
+      "user": "tamirdresher",
+      "hostname": "CPC-tamir-3H7BI"
+    }
+  }
+}

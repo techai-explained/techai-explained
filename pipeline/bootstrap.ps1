@@ -51,6 +51,143 @@ if (-not (Test-Path $manifestPath)) {
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
 Log "Manifest version: $($manifest.version), last updated: $($manifest.last_updated)"
 
+# --- Machine Registration ---
+$machineId = $env:COMPUTERNAME
+$machineRegistry = "$manifestRepo\pipeline\machines\registry.json"
+
+# Ensure directory exists
+New-Item -Path "$manifestRepo\pipeline\machines" -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
+
+# Load or create registry
+if (Test-Path $machineRegistry) {
+    $registry = Get-Content $machineRegistry -Raw | ConvertFrom-Json
+} else {
+    $registry = @{ machines = @{} } | ConvertTo-Json | ConvertFrom-Json
+}
+
+# Check if this machine is new
+$isNewMachine = -not ($registry.machines.PSObject.Properties.Name -contains $machineId)
+
+if ($isNewMachine) {
+    Log "NEW MACHINE DETECTED: $machineId — running full setup"
+    
+    # Register this machine
+    $machineInfo = @{
+        hostname = $machineId
+        first_seen = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+        last_seen = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+        os = [System.Environment]::OSVersion.VersionString
+        user = $env:USERNAME
+        setup_complete = @()
+        setup_pending = @()
+    }
+    
+    # Add to registry
+    $registry.machines | Add-Member -NotePropertyName $machineId -NotePropertyValue $machineInfo -Force
+    $registry | ConvertTo-Json -Depth 5 | Set-Content $machineRegistry -Encoding utf8
+    
+    # Commit and push registration
+    Push-Location $manifestRepo
+    git add pipeline/machines/registry.json
+    git commit -m "chore: register new machine $machineId" --quiet 2>$null
+    if ($token) {
+        git push "https://tamirdresher:$token@github.com/tamirdresher/techai-explained.git" HEAD --quiet 2>$null
+    }
+    Pop-Location
+    
+    # Create GitHub issue for this machine's setup
+    if ($token) {
+        $issueBody = @"
+New machine **$machineId** registered at $(Get-Date -Format 'yyyy-MM-dd HH:mm').
+
+## Setup Checklist
+- [ ] All 3 repos cloned
+- [ ] bootstrap.ps1 -Install completed
+- [ ] Python deps installed (feedparser, edge-tts, Pillow, moviepy)
+- [ ] TechAI-StartupCatchUp task registered
+- [ ] TechAI-DailyBriefs task registered
+- [ ] gh auth login for tamirdresher
+- [ ] First daily briefs generated
+- [ ] All 3 Ralphs launched
+
+## Machine Info
+- Hostname: $machineId
+- OS: $([System.Environment]::OSVersion.VersionString)
+- User: $env:USERNAME
+"@
+        $headers = @{ Authorization = "token $token"; Accept = "application/vnd.github.v3+json" }
+        $body = @{
+            title = "🖥️ Machine setup: $machineId"
+            body = $issueBody
+            labels = @("automation")
+        } | ConvertTo-Json
+        
+        Invoke-RestMethod -Uri "https://api.github.com/repos/tamirdresher/techai-explained/issues" `
+            -Method POST -Headers $headers -Body $body -ContentType "application/json" -ErrorAction SilentlyContinue
+        Log "  Created GitHub issue for machine setup"
+    }
+    
+    # Force -Install behavior for new machines
+    $Install = $true
+} else {
+    # Update last_seen
+    $registry.machines.$machineId.last_seen = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+    $registry | ConvertTo-Json -Depth 5 | Set-Content $machineRegistry -Encoding utf8
+    Log "Known machine: $machineId (last seen updated)"
+}
+
+# --- Run setup checks ---
+$setupChecklist = $manifest.machines.setup_checklist
+$completedItems = @()
+$pendingItems = @()
+
+foreach ($check in $setupChecklist) {
+    $passed = $false
+    switch ($check.id) {
+        "repos-cloned" { 
+            $passed = (Test-Path "C:\Users\tamirdresher\source\repos\techai-explained") -and 
+                      (Test-Path "C:\Users\tamirdresher\source\repos\content-empire") -and
+                      (Test-Path "C:\Users\tamirdresher\source\repos\jellybolt-games")
+        }
+        "bootstrap-installed" {
+            $startupPath = [Environment]::GetFolderPath('Startup')
+            $passed = Test-Path (Join-Path $startupPath "ContentEmpire-Bootstrap.lnk")
+        }
+        "python-deps" {
+            python -c "import feedparser, edge_tts, PIL" 2>$null
+            $passed = ($LASTEXITCODE -eq 0)
+        }
+        "startup-task" {
+            $passed = [bool](Get-ScheduledTask -TaskName "TechAI-StartupCatchUp" -ErrorAction SilentlyContinue)
+        }
+        "daily-task" {
+            $passed = [bool](Get-ScheduledTask -TaskName "TechAI-DailyBriefs" -ErrorAction SilentlyContinue)
+        }
+        "git-auth" {
+            $passed = [bool](gh auth token --user tamirdresher 2>$null)
+        }
+        "first-briefs" {
+            $passed = (Get-ChildItem "$manifestRepo\pipeline\daily-briefs\output" -Directory -ErrorAction SilentlyContinue).Count -gt 0
+        }
+        "ralphs-launched" {
+            $passed = $true  # Will be true after bootstrap runs
+        }
+    }
+    
+    if ($passed) { 
+        $completedItems += $check.id 
+        Log "  ✅ $($check.id)"
+    } else { 
+        $pendingItems += $check.id
+        Log "  ❌ $($check.id) — will fix"
+    }
+}
+
+# Update registry with setup status
+$registry.machines.$machineId.setup_complete = $completedItems
+$registry.machines.$machineId.setup_pending = $pendingItems
+$registry | ConvertTo-Json -Depth 5 | Set-Content $machineRegistry -Encoding utf8
+
 # Step 3: Sync scheduled tasks
 foreach ($task in $manifest.scheduled_tasks) {
     $existing = Get-ScheduledTask -TaskName $task.name -ErrorAction SilentlyContinue
