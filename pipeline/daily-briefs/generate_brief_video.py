@@ -265,7 +265,12 @@ def compose_video_ffmpeg(slides, audio_files, output_path, per_slide_secs=None):
         )
         if clip_result.returncode != 0:
             print(f"ffmpeg clip {idx} error: {clip_result.stderr[:200]}", file=sys.stderr)
-        concat_entries.append(clip_path)
+        else:
+            concat_entries.append(clip_path)
+
+    if not concat_entries:
+        print(f"ERROR: No valid clips generated for {output_path}", file=sys.stderr)
+        return
 
     # Write concat file (use just filenames since clips are in same directory)
     concat_file = str(tmp_dir / "concat.txt")
