@@ -160,11 +160,32 @@ def main():
     parser.add_argument(
         "--language", default="both", choices=["en", "he", "both"]
     )
+    parser.add_argument(
+        "--search-dir",
+        dest="search_dir",
+        default=None,
+        help="Root dir to search for brief MP4s (used when artifact names vary)",
+    )
     args = parser.parse_args()
 
-    output_dir = Path(__file__).parent / "output" / args.date
-    if not output_dir.exists():
-        print(f"⚠️ No output directory for {args.date}: {output_dir} — skipping upload.")
+    default_dir = Path(__file__).parent / "output" / args.date
+    if default_dir.exists():
+        output_dir = default_dir
+    elif args.search_dir:
+        import shutil
+        search_root = Path(args.search_dir)
+        output_dir = default_dir
+        output_dir.mkdir(parents=True, exist_ok=True)
+        for mp4 in search_root.rglob("*.mp4"):
+            dest = output_dir / mp4.name
+            if not dest.exists():
+                shutil.copy2(mp4, dest)
+                print(f"  📦 Collected {mp4.name} from {mp4.parent.name}/")
+        if not any(output_dir.iterdir()):
+            print(f"⚠️ No MP4 files found under {search_root} — skipping upload.")
+            sys.exit(0)
+    else:
+        print(f"⚠️ No output directory for {args.date}: {default_dir} — skipping upload.")
         sys.exit(0)
 
     youtube = get_youtube_client()
