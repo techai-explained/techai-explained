@@ -13,7 +13,6 @@ on:
         description: 'Language: en, he, or both'
         required: false
         default: 'both'
-  # Trigger automatically after daily brief generation succeeds
   workflow_run:
     workflows: ["Daily Tech Briefs"]
     types: [completed]
@@ -32,8 +31,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: |
-          pip install google-api-python-client google-auth-oauthlib google-auth-httplib2
+        run: pip install google-api-python-client google-auth-oauthlib google-auth-httplib2
 
       - name: Set upload date
         id: date
@@ -43,7 +41,7 @@ jobs:
         id: check_creds
         run: |
           if [ -z "$YOUTUBE_REFRESH_TOKEN" ]; then
-            echo "::warning::YOUTUBE_REFRESH_TOKEN not set. YouTube upload skipped. See issue #67 for setup guide."
+            echo "::warning::YOUTUBE_REFRESH_TOKEN not set. YouTube upload skipped. See issue #67."
             echo "skip_upload=true" >> $GITHUB_OUTPUT
           fi
         env:
@@ -54,21 +52,24 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ github.event.workflow_run.id }}
-          name: daily-briefs-${{ steps.date.outputs.date }}
-          path: pipeline/daily-briefs/output/${{ steps.date.outputs.date }}/
+          path: pipeline/daily-briefs/output/
         continue-on-error: true
 
       - name: Download video artifacts (manual trigger)
-        if: github.event_name == 'workflow_dispatch' && inputs.date != ''
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/download-artifact@v4
         with:
           name: daily-briefs-${{ inputs.date || steps.date.outputs.date }}
           path: pipeline/daily-briefs/output/${{ inputs.date || steps.date.outputs.date }}/
         continue-on-error: true
 
+      - name: List downloaded artifacts
+        run: |
+          echo "=== Downloaded files ==="
+          find pipeline/daily-briefs/output/ -type f 2>/dev/null | head -30 || echo "(none)"
+
       - name: Upload to YouTube
         if: steps.check_creds.outputs.skip_upload != 'true'
-        continue-on-error: false
         env:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
@@ -88,6 +89,7 @@ jobs:
           python pipeline/daily-briefs/upload_to_youtube.py \
             --date "$DATE" \
             --language "${{ inputs.language || 'both' }}" \
+            --search-dir pipeline/daily-briefs/output/ \
             $TOPIC_ARG
 
       - name: Job summary
