@@ -2,7 +2,7 @@
 title: "Why Kubernetes Won — And What's Coming Next"
 description: "Kubernetes crushed Docker Swarm, Mesos, and Nomad. Here's the three reasons it won so completely, the problems it still hasn't solved, and the three technologies reshaping container orchestration by 2028."
 tags: ["kubernetes", "devops", "cloudnative", "platformengineering"]
-canonical_url: https://tamirdresher.github.io/techai-explained/articles/why-kubernetes-won/
+canonical_url: https://techai-explained.github.io/techai-explained/articles/why-kubernetes-won/
 published: false
 ---
 

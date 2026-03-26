@@ -2,7 +2,7 @@
 title: "Understanding AI Agents: Architecture Patterns That Work"
 description: "A deep dive into the architecture patterns behind modern AI agents — from simple ReAct loops to multi-agent orchestration systems that power production applications."
 tags: ["ai", "programming", "python", "tutorial"]
-canonical_url: https://tamirdresher.github.io/techai-explained/articles/ai-agents-architecture-patterns/
+canonical_url: https://techai-explained.github.io/techai-explained/articles/ai-agents-architecture-patterns/
 published: false
 ---
 

@@ -2,7 +2,7 @@
 title: "Microservices Are Dead? What Actually Replaced Them"
 description: "Amazon moved away from microservices. So did Shopify. After a decade of 'microservices or die,' the industry has landed somewhere unexpected. Here's what actually happened — and the three patterns teams are adopting in 2026."
 tags: ["architecture", "microservices", "devops", "programming"]
-canonical_url: https://tamirdresher.github.io/techai-explained/articles/microservices-are-dead/
+canonical_url: https://techai-explained.github.io/techai-explained/articles/microservices-are-dead/
 published: false
 ---
 

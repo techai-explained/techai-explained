@@ -2,7 +2,7 @@
 title: "RAG Explained: How AI Reads YOUR Data (With Code)"
 description: "A clear breakdown of Retrieval-Augmented Generation — vector embeddings, chunking strategies, retrieval pipelines, and a working code example you can run today."
 tags: ["ai", "machinelearning", "python", "tutorial"]
-canonical_url: https://tamirdresher.github.io/techai-explained/articles/rag-explained/
+canonical_url: https://techai-explained.github.io/techai-explained/articles/rag-explained/
 published: false
 ---
 

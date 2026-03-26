@@ -2,7 +2,7 @@
 title: "Docker vs Podman: The Real Differences in 2026"
 description: "Docker Desktop now costs money for enterprise. Podman claims to be the drop-in replacement. Here's what actually changes — architecture, security, Kubernetes compatibility, and the bottom line."
 tags: ["docker", "devops", "containers", "security"]
-canonical_url: https://tamirdresher.github.io/techai-explained/articles/docker-vs-podman/
+canonical_url: https://techai-explained.github.io/techai-explained/articles/docker-vs-podman/
 published: false
 ---
 
