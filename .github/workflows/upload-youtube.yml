@@ -55,6 +55,7 @@ jobs:
         if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@v4
         with:
+          github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
           path: pipeline/daily-briefs/output/
         continue-on-error: true
