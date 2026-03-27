@@ -94,6 +94,7 @@ jobs:
           name: daily-briefs-${{ steps.set-date.outputs.date }}
           path: pipeline/daily-briefs/output/
           retention-days: 30
+          overwrite: true
 
   weekly-summary:
     runs-on: ubuntu-latest
