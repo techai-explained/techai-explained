@@ -9,12 +9,25 @@ if ($PSVersionTable.PSVersion.Major -lt 7) {
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $Host.UI.RawUI.WindowTitle = "Ralph Watch - techai-explained"
 
+# Force CWD to script directory (critical for detached processes)
+Set-Location $PSScriptRoot
+
 $repoOwner = "tamirdresher"
 $repoName = "techai-explained"
 $round = 0
 $consecutiveFailures = 0
 $roundTimeoutMinutes = 30
 $sleepSeconds = 300
+
+# Auth: extract GH_TOKEN from git remote URL for detached process compatibility
+$remoteUrl = git config --get remote.origin.url 2>$null
+if ($remoteUrl -match 'https://[^:]+:([^@]+)@') {
+    $env:GH_TOKEN = $Matches[1]
+    Write-Host "[ralph-watch] Auth: using token from git remote" -ForegroundColor Green
+} else {
+    Write-Host "[ralph-watch] WARNING: No token in remote URL — falling back to gh auth" -ForegroundColor Yellow
+}
+Write-Host "[ralph-watch] CWD: $(Get-Location)" -ForegroundColor DarkGray
 
 $prompt = @'
 Ralph, Go! Check the open issues in this repo and work on any that are actionable.
@@ -23,7 +36,9 @@ Focus on the video production pipeline — scripts, voice, visuals, SEO, and pub
 If there are no actionable issues, report idle status.
 '@
 
-function ghp { gh auth switch --user tamirdresher 2>$null | Out-Null; gh @args }
+function ghp { gh @args }
+
+# Note: ghp wrapper preserved for agency command compatibility
 
 while ($true) {
     $round++
@@ -32,7 +47,8 @@ while ($true) {
     Write-Host "`n$timestamp — Ralph Round $round Start" -ForegroundColor Cyan
 
     # Step 1: List open issues for visibility
-    $issues = ghp issue list --repo "$repoOwner/$repoName" --state open --json number,title,labels 2>$null | ConvertFrom-Json
+    $issueJson = gh issue list --repo "$repoOwner/$repoName" --state open --json "number,title,labels" 2>$null
+    $issues = if ($issueJson) { $issueJson | ConvertFrom-Json -ErrorAction SilentlyContinue } else { $null }
     if ($issues) {
         Write-Host "  Open issues: $($issues.Count)" -ForegroundColor Yellow
         foreach ($issue in $issues) {
@@ -62,9 +78,12 @@ while ($true) {
             $wrapperScript = Join-Path $env:TEMP "ralph-round-techai-$round.ps1"
             @"
 `$promptFile = '$($promptFile.Replace("'","''"))'
-`$p = [System.IO.File]::ReadAllText(`$promptFile)
+`$env:AGENCY_SESSION_ID = ''
+$env:cli_resume = ''
+$env:MSFT_AGENCY = ''
+$p = [System.IO.File]::ReadAllText(`$promptFile)
 `$singleLine = `$p -replace "`r`n", " " -replace "`n", " "
-agency copilot --yolo --autopilot --agent squad -p `$singleLine --resume=$roundSessionId
+agency copilot --yolo --autopilot -p `$singleLine --resume=$roundSessionId
 exit `$LASTEXITCODE
 "@ | Out-File -FilePath $wrapperScript -Encoding utf8 -Force
 

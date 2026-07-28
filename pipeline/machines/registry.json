@@ -17,6 +17,25 @@
       "first_seen": "2026-03-20T07:38:22Z",
       "user": "tdsquadai",
       "hostname": "CPC-dev-machine"
+    },
+    "CPC-tamir-3H7BI": {
+      "setup_pending": [
+        "git-auth"
+      ],
+      "os": "Microsoft Windows NT 10.0.26220.0",
+      "user": "tamirdresher",
+      "setup_complete": [
+        "repos-cloned",
+        "bootstrap-installed",
+        "python-deps",
+        "startup-task",
+        "daily-task",
+        "first-briefs",
+        "ralphs-launched"
+      ],
+      "first_seen": "2026-07-28T18:33:26Z",
+      "hostname": "CPC-tamir-3H7BI",
+      "last_seen": "2026-07-28T18:33:26Z"
     }
   }
 }
