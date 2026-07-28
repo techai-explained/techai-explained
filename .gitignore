@@ -10,3 +10,9 @@ __pycache__/
 
 pipeline/daily-briefs/client_secrets.json
 pipeline/daily-briefs/run_auth.py
+
+# MoviePy intermediate render artifacts (e.g., TEMP_MPY_wvf_snd.mp4)
+*TEMP_MPY*
+
+# Transient Ralph watch state (per-machine)
+.squad/ralph-circuit-breaker.json

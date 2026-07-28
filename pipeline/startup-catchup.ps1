@@ -2,7 +2,7 @@
 # Run this when the devbox starts up after hibernation
 # Generates missed daily briefs, pushes unpushed commits, launches Ralphs
 
-$repoRoot = "C:\Users\tamirdresher\source\repos\techai-explained"
+$repoRoot = "$env:USERPROFILE\source\repos\techai-explained"
 $today = Get-Date -Format "yyyy-MM-dd"
 
 Write-Host "=== TechAI Startup Catch-Up ===" -ForegroundColor Cyan
@@ -15,6 +15,11 @@ Push-Location $repoRoot
 git pull --quiet 2>$null
 Write-Host "  Pulled latest" -ForegroundColor Green
 Pop-Location
+Write-Host ""
+
+# 0b. Make sure GitHub hasn't disabled the scheduled workflows for inactivity
+Write-Host "--- Checking GitHub Actions schedules ---" -ForegroundColor Cyan
+& "$repoRoot\pipeline\ensure-workflows-enabled.ps1"
 Write-Host ""
 
 # 1. Check and generate missing daily briefs (last 7 days)
@@ -74,9 +79,9 @@ if (Test-Path "$todayDir") {
 Write-Host ""
 Write-Host "--- Pushing unpushed commits ---" -ForegroundColor Cyan
 $repos = @(
-    "C:\Users\tamirdresher\source\repos\techai-explained",
-    "C:\Users\tamirdresher\source\repos\content-empire",
-    "C:\Users\tamirdresher\source\repos\jellybolt-games"
+    "$env:USERPROFILE\source\repos\techai-explained",
+    "$env:USERPROFILE\source\repos\content-empire",
+    "$env:USERPROFILE\source\repos\jellybolt-games"
 )
 
 foreach ($repo in $repos) {
@@ -87,9 +92,9 @@ foreach ($repo in $repos) {
             if ($unpushed) {
                 $repoName = Split-Path $repo -Leaf
                 Write-Host "  Pushing unpushed commits for $repoName..." -ForegroundColor Yellow
-                $token = gh auth token --user tamirdresher 2>$null
+                $token = gh auth token --user tdsquadAI 2>$null
                 if ($token) {
-                    git push "https://tamirdresher:$token@github.com/tamirdresher/$repoName.git" HEAD 2>$null
+                    git push "https://tdsquadAI:$token@github.com/tdsquadAI/$repoName.git" HEAD 2>$null
                     Write-Host "  Pushed!" -ForegroundColor Green
                 } else {
                     # Fallback to default push
@@ -111,9 +116,9 @@ foreach ($repo in $repos) {
 Write-Host ""
 Write-Host "--- Launching Ralphs ---" -ForegroundColor Cyan
 foreach ($repoName in @("techai-explained", "jellybolt-games", "content-empire")) {
-    $repoPath = "C:\Users\tamirdresher\source\repos\$repoName"
+    $repoPath = "$env:USERPROFILE\source\repos\$repoName"
     if (Test-Path $repoPath) {
-        Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$repoPath'; `$host.UI.RawUI.WindowTitle = 'Ralph-$repoName'; copilot -p 'You are Ralph watching $repoName. Check issues, PRs, CI. Act autonomously.'" -WindowStyle Minimized
+        Start-Process pwsh -ArgumentList "-NoProfile", "-NoExit", "-Command", "Set-Location -LiteralPath '$repoPath'; `$host.UI.RawUI.WindowTitle = 'Ralph-$repoName'; copilot --allow-all-tools -p 'You are Ralph watching $repoName. Check issues, PRs, CI. Act autonomously.'" -WindowStyle Minimized
         Write-Host "  Ralph-$repoName launched" -ForegroundColor Green
     } else {
         Write-Host "  $repoName - repo not found, skipping" -ForegroundColor DarkGray

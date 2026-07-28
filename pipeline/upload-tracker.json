@@ -2,5 +2,81 @@
   "01-ai-agents-explained.mp4": {
     "video_id": "BIhf0Ji3iy4",
     "uploaded_at": "2026-03-21T00:00:00"
+  },
+  "01-what-is-ai-agent.mp4": {
+    "video_id": "ohqGAA5_7pY",
+    "uploaded_at": "2026-04-03T08:40:28.281189"
+  },
+  "02-ai-team-works-while-i-sleep.mp4": {
+    "video_id": "WS0M1o1-3es",
+    "uploaded_at": "2026-04-03T08:41:29.556362"
+  },
+  "02-rag-explained.mp4": {
+    "video_id": "iLkGbL9IaSQ",
+    "uploaded_at": "2026-04-03T08:42:31.895706"
+  },
+  "03-docker-vs-podman.mp4": {
+    "video_id": "qx0Fn_Q7KQI",
+    "uploaded_at": "2026-04-03T08:43:34.430334"
+  },
+  "03-mcp-servers-explained.mp4": {
+    "video_id": "dxeDVtBQFtQ",
+    "uploaded_at": "2026-04-03T08:44:36.085430"
+  },
+  "04-github-copilot-cli-secret-weapon.mp4": {
+    "video_id": "_DDfpn04lVU",
+    "uploaded_at": "2026-04-03T08:45:37.724373"
+  },
+  "04-why-kubernetes-won.mp4": {
+    "video_id": "1sU-5xkWy0s",
+    "uploaded_at": "2026-04-03T10:01:11.942376"
+  },
+  "05-how-ai-code-review-works.mp4": {
+    "video_id": "ACZ4sskieU8",
+    "uploaded_at": "2026-04-03T10:02:13.653338"
+  },
+  "05-microservices-are-dead.mp4": {
+    "video_id": "qAQmhhJfu_E",
+    "uploaded_at": "2026-04-03T10:03:15.346824"
+  },
+  "06-ai-code-review.mp4": {
+    "video_id": "FPwU-7nE1fM",
+    "uploaded_at": "2026-04-03T10:04:17.015809"
+  },
+  "07-distributed-tracing.mp4": {
+    "video_id": "pPf8LWxjCpQ",
+    "uploaded_at": "2026-04-04T09:05:02.182524"
+  },
+  "08-platform-engineer-tools.mp4": {
+    "video_id": "fiVKypL7TKY",
+    "uploaded_at": "2026-04-04T09:06:03.681274"
+  },
+  "09-dev-productivity-2026.mp4": {
+    "video_id": "lV9J2mIG5y8",
+    "uploaded_at": "2026-04-04T09:07:05.340790"
+  },
+  "dotnet-brief.mp4": {
+    "video_id": "lN_kAGsNj44",
+    "uploaded_at": "2026-04-05T08:09:24.764107"
+  },
+  "ai-brief.mp4": {
+    "video_id": "bb4XqW_4X8s",
+    "uploaded_at": "2026-04-05T08:10:26.075676"
+  },
+  "cloud-brief.mp4": {
+    "video_id": "6dJOkofQ9UU",
+    "uploaded_at": "2026-04-05T08:11:27.456183"
+  },
+  "dev-brief.mp4": {
+    "video_id": "PBt_EC1XYgY",
+    "uploaded_at": "2026-04-05T08:12:28.985817"
+  },
+  "security-brief.mp4": {
+    "video_id": "LmaHL5oUhzo",
+    "uploaded_at": "2026-04-05T08:13:30.322811"
+  },
+  "gamedev-brief.mp4": {
+    "video_id": "DMUpskFTotA",
+    "uploaded_at": "2026-04-05T08:14:31.580491"
   }
 }

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "watch": {
+    "interval": 20,
+    "execute": true,
+    "timeout": 30,
+    "agentCmd": "node C:\\\\Users\\\\tamirdresher\\\\.squad\\\\agency-wrapper.js",
+    "verbose": false,
+    "self-pull": true,
+    "board": false,
+    "two-pass": false,
+    "decision-hygiene": false,
+    "cleanup": true,
+    "wave-dispatch": false,
+    "fleet-dispatch": false,
+    "retro": false,
+    "monitor-teams": false,
+    "monitor-email": false
+  }
+}
