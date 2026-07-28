@@ -14,8 +14,43 @@ param(
 
 $ErrorActionPreference = 'Continue'
 
+# The machine may be logged into several GitHub accounts, and `gh`'s "active"
+# account can be switched out from under us by any other tool. Re-enabling a
+# workflow needs admin rights, so resolve a token that actually has them
+# instead of trusting whichever account happens to be active.
+function Resolve-AdminToken {
+    param([string]$Repo)
+
+    $accounts = @(gh auth status 2>&1 |
+        Select-String -Pattern 'Logged in to \S+ account (\S+)' |
+        ForEach-Object { $_.Matches[0].Groups[1].Value })
+
+    foreach ($account in $accounts) {
+        $token = gh auth token -u $account 2>$null
+        if (-not $token) { continue }
+
+        $previous = $env:GH_TOKEN
+        $env:GH_TOKEN = $token
+        $isAdmin = gh api "repos/$Repo" --jq '.permissions.admin' 2>$null
+        $env:GH_TOKEN = $previous
+
+        if ($isAdmin -eq 'true') { return $token }
+    }
+
+    return $null
+}
+
+$originalToken = $env:GH_TOKEN
+
 foreach ($repo in $Repos) {
     Write-Host "Checking scheduled workflows for $repo..." -ForegroundColor Cyan
+
+    $adminToken = Resolve-AdminToken -Repo $repo
+    if (-not $adminToken) {
+        Write-Host "  No logged-in account has admin rights on $repo - cannot re-enable workflows" -ForegroundColor Red
+        continue
+    }
+    $env:GH_TOKEN = $adminToken
 
     $raw = gh api "repos/$repo/actions/workflows" --paginate 2>$null
     if (-not $raw) {
@@ -41,3 +76,5 @@ foreach ($repo in $Repos) {
         }
     }
 }
+
+$env:GH_TOKEN = $originalToken
