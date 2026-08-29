@@ -20,10 +20,10 @@ jobs:
       - name: Calculate week dates
         id: dates
         run: |
-          WEEK_START=$(date -d "next Monday" +%Y-%m-%d 2>/dev/null || date -v+1d +%Y-%m-%d)
-          WEEK_END=$(date -d "next Sunday" +%Y-%m-%d 2>/dev/null || date -v+7d +%Y-%m-%d)
-          WEEK_NUM=$(date +%V)
-          YEAR=$(date +%Y)
+          WEEK_START=$(date -u -d "next Monday" +%Y-%m-%d)
+          WEEK_END=$(date -u -d "$WEEK_START + 6 days" +%Y-%m-%d)
+          WEEK_NUM=$(date -u -d "$WEEK_START" +%V)
+          YEAR=$(date -u -d "$WEEK_START" +%G)
           echo "week_start=$WEEK_START" >> $GITHUB_OUTPUT
           echo "week_end=$WEEK_END" >> $GITHUB_OUTPUT
           echo "week_num=$WEEK_NUM" >> $GITHUB_OUTPUT
