@@ -64,8 +64,9 @@ jobs:
         id: check_creds
         run: |
           if [ -z "$YOUTUBE_REFRESH_TOKEN" ]; then
-            echo "::warning::YOUTUBE_REFRESH_TOKEN not set. YouTube upload skipped. See issue #67."
             echo "skip_upload=true" >> $GITHUB_OUTPUT
+            echo "::error::YOUTUBE_REFRESH_TOKEN is not configured. Add the repository secret before retrying."
+            exit 1
           fi
         env:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
@@ -143,7 +144,7 @@ jobs:
         run: |
           if [ "${{ steps.check_creds.outputs.skip_upload }}" = "true" ]; then
             echo "## ⚠️ YouTube Upload Skipped" >> $GITHUB_STEP_SUMMARY
-            echo "Credentials not configured. Follow [issue #67](https://github.com/${{ github.repository }}/issues/67) to set up OAuth secrets." >> $GITHUB_STEP_SUMMARY
+            echo "The \`YOUTUBE_REFRESH_TOKEN\` repository secret is not configured." >> $GITHUB_STEP_SUMMARY
           elif [ "${{ job.status }}" = "success" ]; then
             echo "## ✅ YouTube Upload Completed" >> $GITHUB_STEP_SUMMARY
             echo "Date: ${{ inputs.date || steps.date.outputs.date }}" >> $GITHUB_STEP_SUMMARY
