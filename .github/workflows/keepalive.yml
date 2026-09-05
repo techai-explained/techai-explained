@@ -1,0 +1,51 @@
+name: Keepalive
+
+# GitHub disables scheduled workflows after 60 days without repository activity.
+# This job writes a heartbeat commit weekly so the daily pipeline never goes dormant.
+
+on:
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Re-enable any inactivity-disabled workflows
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows" --paginate \
+            --jq '.workflows[] | select(.state == "disabled_inactivity") | .path | split("/") | last' \
+            > disabled.txt
+          while read -r wf; do
+            [ -z "$wf" ] && continue
+            echo "Re-enabling $wf"
+            gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/${wf}/enable"
+          done < disabled.txt
+          rm -f disabled.txt
+
+      - name: Write heartbeat
+        run: |
+          mkdir -p .github
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/keepalive.txt
+
+      - name: Commit heartbeat
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive.txt
+          if git diff --staged --quiet; then
+            echo "No heartbeat change to commit"
+          else
+            git commit -m "chore: keepalive heartbeat [skip ci]"
+            git push
+          fi

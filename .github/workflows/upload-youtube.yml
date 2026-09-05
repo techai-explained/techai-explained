@@ -34,12 +34,12 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: true
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -72,7 +72,7 @@ jobs:
 
       - name: Download video artifacts (workflow_run trigger)
         if: github.event_name == 'workflow_run'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
@@ -81,7 +81,7 @@ jobs:
 
       - name: Download video artifacts (manual trigger)
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: daily-briefs-${{ inputs.date || steps.date.outputs.date }}
           path: pipeline/daily-briefs/output/${{ inputs.date || steps.date.outputs.date }}/
