@@ -12,7 +12,7 @@ $Host.UI.RawUI.WindowTitle = "Ralph Watch - techai-explained"
 # Force CWD to script directory (critical for detached processes)
 Set-Location $PSScriptRoot
 
-$repoOwner = "tamirdresher"
+$repoOwner = "tdsquadAI"
 $repoName = "techai-explained"
 $round = 0
 $consecutiveFailures = 0
@@ -47,7 +47,7 @@ while ($true) {
     Write-Host "`n$timestamp — Ralph Round $round Start" -ForegroundColor Cyan
 
     # Step 1: List open issues for visibility
-    $issueJson = gh issue list --repo "$repoOwner/$repoName" --state open --json "number,title,labels" 2>$null
+    $issueJson = ghp issue list --repo "$repoOwner/$repoName" --state open --json "number,title,labels" 2>$null
     $issues = if ($issueJson) { $issueJson | ConvertFrom-Json -ErrorAction SilentlyContinue } else { $null }
     if ($issues) {
         Write-Host "  Open issues: $($issues.Count)" -ForegroundColor Yellow
