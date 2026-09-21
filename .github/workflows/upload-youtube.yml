@@ -63,13 +63,19 @@ jobs:
       - name: Check YouTube credentials
         id: check_creds
         run: |
-          if [ -z "$YOUTUBE_REFRESH_TOKEN" ]; then
+          missing=()
+          [ -z "$YOUTUBE_REFRESH_TOKEN" ] && missing+=("YOUTUBE_REFRESH_TOKEN")
+          [ -z "$YOUTUBE_CLIENT_ID" ] && missing+=("YOUTUBE_CLIENT_ID")
+          [ -z "$YOUTUBE_CLIENT_SECRET" ] && missing+=("YOUTUBE_CLIENT_SECRET")
+          if [ "${#missing[@]}" -gt 0 ]; then
             echo "skip_upload=true" >> $GITHUB_OUTPUT
-            echo "::error::YOUTUBE_REFRESH_TOKEN is not configured. Add the repository secret before retrying."
+            echo "::error::Missing required YouTube secrets: ${missing[*]}. See https://github.com/techai-explained/techai-explained/issues/126"
             exit 1
           fi
         env:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
 
       - name: Download video artifacts (workflow_run trigger)
         if: github.event_name == 'workflow_run'
@@ -144,7 +150,8 @@ jobs:
         run: |
           if [ "${{ steps.check_creds.outputs.skip_upload }}" = "true" ]; then
             echo "## ⚠️ YouTube Upload Skipped" >> $GITHUB_STEP_SUMMARY
-            echo "The \`YOUTUBE_REFRESH_TOKEN\` repository secret is not configured." >> $GITHUB_STEP_SUMMARY
+            echo "One or more required YouTube repository secrets are not configured." >> $GITHUB_STEP_SUMMARY
+            echo "See [techai-explained/techai-explained#126](https://github.com/techai-explained/techai-explained/issues/126)." >> $GITHUB_STEP_SUMMARY
           elif [ "${{ job.status }}" = "success" ]; then
             echo "## ✅ YouTube Upload Completed" >> $GITHUB_STEP_SUMMARY
             echo "Date: ${{ inputs.date || steps.date.outputs.date }}" >> $GITHUB_STEP_SUMMARY
